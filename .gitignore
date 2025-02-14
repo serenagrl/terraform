@@ -1,0 +1,8 @@
+.vscode
+**/.vs
+**/.terraform
+**/.vscode
+
+*.tfstate
+*.tfstate.*
+*.terraform*

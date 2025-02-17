@@ -60,36 +60,38 @@ locals {
 
   }
 
-  ### Demo App Settings (Disable this because demo app is not available) ###
-  demo = {
+  ### ECR settings ###
+  ecr = {
     enabled  = true
-    app_name = "notifications-poc"
-    repositories = [
-      "apiservice", "processors-transaction", "broadcasters-email",
-      "broadcasters-sms", "broadcasters-whatsapp", "broadcasters-log"
-    ]
-    rabbitmq = {
-      version        = "3.13"
-      instance_type  = "mq.t3.micro"
-      mode           = "SINGLE_INSTANCE"
-      subnets        = [aws_subnet.private_subnet1.id]
-      admin_username = "rabbit-admin"
-      # Set your password or null to auto-generate.
-      admin_password = null
-    }
+    app_name = "<Your-Application-Namespace>"
+    # List of repositories that you want to be created.
+    repositories = []
+  }
 
-    postgres = {
-      version       = "17.2"
-      instance_type = "db.t4g.micro"
-      subnets       = [aws_subnet.database_subnet1[0].id,
-                       aws_subnet.database_subnet2[0].id
-                      ]
-      multi_az      = false
-      initial_db    = "broadcastdb"
-      username      = "postgres"
-      # Set your password or null to auto-generate.
-      password      = null
-    }
+  ### RDS Postgres Settings ###
+  postgres = {
+    enabled       = true
+    version       = "17.2"
+    instance_type = "db.t4g.micro"
+    subnets       = [aws_subnet.database_subnet1[0].id,
+                     aws_subnet.database_subnet2[0].id
+                    ]
+    multi_az      = false
+    initial_db    = "broadcastdb"
+    username      = "postgres"
+    # Set your password or null to auto-generate.
+    password      = null
+  }
 
+  ### Amazon MQ RabbitMQ Broker Settings ###
+  rabbitmq = {
+    enabled        = true
+    version        = "3.13"
+    instance_type  = "mq.m5.large" # "mq.t3.micro"
+    mode           = "CLUSTER_MULTI_AZ" # "SINGLE_INSTANCE" or "CLUSTER_MULTI_AZ"
+    subnets        = [aws_subnet.private_subnet1.id, aws_subnet.private_subnet2.id]
+    admin_username = "rabbit-admin"
+    # Set your password or null to auto-generate.
+    admin_password = null
   }
 }

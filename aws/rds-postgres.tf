@@ -1,8 +1,8 @@
 resource "aws_db_subnet_group" "postgres_subnet_group" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.postgres.enabled ? 1 : 0
 
   name       = "postgres-subnet-group"
-  subnet_ids = local.demo.postgres.subnets
+  subnet_ids = local.postgres.subnets
   description =  "Subnet group for RDS PostgreSQL"
 
   tags = {
@@ -11,7 +11,7 @@ resource "aws_db_subnet_group" "postgres_subnet_group" {
 }
 
 resource "aws_security_group" "postgres_security_group" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.postgres.enabled ? 1 : 0
 
   name        = "postgres-security-group"
   description = "Security group for RDS PostgreSQL"
@@ -23,7 +23,7 @@ resource "aws_security_group" "postgres_security_group" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "vpn_postgres_ingress_rule" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.postgres.enabled ? 1 : 0
 
   security_group_id = aws_security_group.postgres_security_group[0].id
 
@@ -34,7 +34,7 @@ resource "aws_vpc_security_group_ingress_rule" "vpn_postgres_ingress_rule" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "eks_postgres_ingress_rule" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.postgres.enabled ? 1 : 0
 
   security_group_id = aws_security_group.postgres_security_group[0].id
 
@@ -45,7 +45,7 @@ resource "aws_vpc_security_group_ingress_rule" "eks_postgres_ingress_rule" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "postgres_egress_rule" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.postgres.enabled ? 1 : 0
 
   security_group_id = aws_security_group.postgres_security_group[0].id
 
@@ -59,26 +59,26 @@ resource "random_password" "postgres_password" {
 }
 
 resource "aws_db_instance" "rds_postgres" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.postgres.enabled ? 1 : 0
 
-  identifier              = local.demo.postgres.initial_db
+  identifier              = local.postgres.initial_db
   engine                  = "postgres"
-  engine_version          = local.demo.postgres.version
-  instance_class          = local.demo.postgres.instance_type
+  engine_version          = local.postgres.version
+  instance_class          = local.postgres.instance_type
   allocated_storage       = 20
   skip_final_snapshot     = true
 
   db_subnet_group_name    = aws_db_subnet_group.postgres_subnet_group[0].name
   vpc_security_group_ids  = [aws_security_group.postgres_security_group[0].id]
   publicly_accessible     = false
-  multi_az                = local.demo.postgres.multi_az
+  multi_az                = local.postgres.multi_az
 
-  db_name                 = local.demo.postgres.initial_db
-  username                = local.demo.postgres.username
-  password                = coalesce(local.demo.postgres.password, random_password.postgres_password.result)
+  db_name                 = local.postgres.initial_db
+  username                = local.postgres.username
+  password                = coalesce(local.postgres.password, random_password.postgres_password.result)
 
   tags = {
-    Name = local.demo.postgres.initial_db
+    Name = local.postgres.initial_db
   }
 
   depends_on = [

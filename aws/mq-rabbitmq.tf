@@ -1,5 +1,5 @@
 resource "aws_security_group" "rabbitmq_security_group" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.rabbitmq.enabled ? 1 : 0
 
   name        = "rabbitmq-security-group"
   description = "Security group for Amazon MQ RabbitMQ broker"
@@ -11,7 +11,7 @@ resource "aws_security_group" "rabbitmq_security_group" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "vpn_rabbitmq_ingress_rule" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.rabbitmq.enabled ? 1 : 0
 
   security_group_id = aws_security_group.rabbitmq_security_group[0].id
 
@@ -22,7 +22,7 @@ resource "aws_vpc_security_group_ingress_rule" "vpn_rabbitmq_ingress_rule" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "eks_rabbitmq_ingress_rule" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.rabbitmq.enabled ? 1 : 0
 
   security_group_id = aws_security_group.rabbitmq_security_group[0].id
 
@@ -33,7 +33,7 @@ resource "aws_vpc_security_group_ingress_rule" "eks_rabbitmq_ingress_rule" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "vpn_rabbitmq_portal_ingress_rule" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.rabbitmq.enabled ? 1 : 0
 
   security_group_id = aws_security_group.rabbitmq_security_group[0].id
 
@@ -44,7 +44,7 @@ resource "aws_vpc_security_group_ingress_rule" "vpn_rabbitmq_portal_ingress_rule
 }
 
 resource "aws_vpc_security_group_ingress_rule" "eks_rabbitmq_portal_ingress_rule" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.rabbitmq.enabled ? 1 : 0
 
   security_group_id = aws_security_group.rabbitmq_security_group[0].id
 
@@ -55,7 +55,7 @@ resource "aws_vpc_security_group_ingress_rule" "eks_rabbitmq_portal_ingress_rule
 }
 
 resource "aws_vpc_security_group_egress_rule" "rabbitmq_egress_rule" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.rabbitmq.enabled ? 1 : 0
 
   security_group_id = aws_security_group.rabbitmq_security_group[0].id
 
@@ -69,22 +69,22 @@ resource "random_password" "rabbitmq_password" {
 }
 
 resource "aws_mq_broker" "rabbitmq" {
-  count = local.demo.enabled ? 1 : 0
+  count = local.rabbitmq.enabled ? 1 : 0
 
   broker_name                = "rabbitmq"
   engine_type                = "RabbitMQ"
-  engine_version             = local.demo.rabbitmq.version
+  engine_version             = local.rabbitmq.version
   auto_minor_version_upgrade = true
-  host_instance_type         = local.demo.rabbitmq.instance_type
-  deployment_mode            = local.demo.rabbitmq.mode
+  host_instance_type         = local.rabbitmq.instance_type
+  deployment_mode            = local.rabbitmq.mode
   publicly_accessible        = false
 
-  subnet_ids      = local.demo.rabbitmq.subnets
+  subnet_ids      = local.rabbitmq.subnets
   security_groups = [aws_security_group.rabbitmq_security_group[0].id]
 
   user {
-    username = local.demo.rabbitmq.admin_username
-    password = coalesce(local.demo.rabbitmq.admin_password, random_password.rabbitmq_password.result)
+    username = local.rabbitmq.admin_username
+    password = coalesce(local.rabbitmq.admin_password, random_password.rabbitmq_password.result)
   }
 
   depends_on = [
@@ -97,6 +97,6 @@ resource "aws_mq_broker" "rabbitmq" {
 
 output "rabbitmq_password" {
   sensitive = true
-  value = coalesce(local.demo.rabbitmq.admin_password, random_password.rabbitmq_password.result)
+  value = coalesce(local.rabbitmq.admin_password, random_password.rabbitmq_password.result)
   description = "The initial password for rabbitmq when it was created."
 }

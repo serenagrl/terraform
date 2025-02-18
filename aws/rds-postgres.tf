@@ -1,8 +1,8 @@
 resource "aws_db_subnet_group" "postgres_subnet_group" {
   count = local.postgres.enabled ? 1 : 0
 
-  name       = "postgres-subnet-group"
-  subnet_ids = local.postgres.subnets
+  name        = "postgres-subnet-group"
+  subnet_ids  = local.postgres.subnets
   description =  "Subnet group for RDS PostgreSQL"
 
   tags = {
@@ -23,34 +23,31 @@ resource "aws_security_group" "postgres_security_group" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "vpn_postgres_ingress_rule" {
-  count = local.postgres.enabled ? 1 : 0
+  count = local.postgres.enabled && local.vpn.enabled ? 1 : 0
 
+  from_port         = 5432
+  to_port           = 5432
+  ip_protocol       = "tcp"
+  cidr_ipv4         = local.vpn.local_ipv4_cidr
   security_group_id = aws_security_group.postgres_security_group[0].id
-
-  from_port   = 5432
-  to_port     = 5432
-  ip_protocol = "tcp"
-  cidr_ipv4   = "${local.vpn.local_ipv4_cidr}"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "eks_postgres_ingress_rule" {
   count = local.postgres.enabled ? 1 : 0
 
-  security_group_id = aws_security_group.postgres_security_group[0].id
-
-  from_port   = 5432
-  to_port     = 5432
-  ip_protocol = "tcp"
+  from_port                    = 5432
+  to_port                      = 5432
+  ip_protocol                  = "tcp"
+  security_group_id            = aws_security_group.postgres_security_group[0].id
   referenced_security_group_id = aws_eks_cluster.eks_cluster.vpc_config[0].cluster_security_group_id
 }
 
 resource "aws_vpc_security_group_egress_rule" "postgres_egress_rule" {
   count = local.postgres.enabled ? 1 : 0
 
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
   security_group_id = aws_security_group.postgres_security_group[0].id
-
-  cidr_ipv4   = "0.0.0.0/0"
-  ip_protocol = "-1"
 }
 
 resource "random_password" "postgres_password" {
@@ -90,6 +87,6 @@ resource "aws_db_instance" "rds_postgres" {
 
 output "postgres_password" {
   sensitive = true
-  value = aws_db_instance.rds_postgres[0].password
+  value = try(aws_db_instance.rds_postgres[0].password, "null")
   description = "The initial password for postgres when it was created."
 }

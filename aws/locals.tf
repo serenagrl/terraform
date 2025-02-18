@@ -64,34 +64,50 @@ locals {
   ecr = {
     enabled  = true
     app_name = "<Your-Application-Namespace>"
-    # List of repositories that you want to be created.
     repositories = []
   }
 
   ### RDS Postgres Settings ###
   postgres = {
-    enabled       = true
+    enabled       = false
     version       = "17.2"
     instance_type = "db.t4g.micro"
-    subnets       = [aws_subnet.database_subnet1[0].id,
-                     aws_subnet.database_subnet2[0].id
-                    ]
+    subnets       = [aws_subnet.database_subnet1[0].id, aws_subnet.database_subnet2[0].id]
     multi_az      = false
     initial_db    = "broadcastdb"
     username      = "postgres"
-    # Set your password or null to auto-generate.
-    password      = null
+    password      = null # Set to null to auto-generate.
   }
 
   ### Amazon MQ RabbitMQ Broker Settings ###
   rabbitmq = {
-    enabled        = true
+    enabled        = false
+    broker_name    = "rabbitmq"
     version        = "3.13"
-    instance_type  = "mq.m5.large" # "mq.t3.micro"
-    mode           = "CLUSTER_MULTI_AZ" # "SINGLE_INSTANCE" or "CLUSTER_MULTI_AZ"
-    subnets        = [aws_subnet.private_subnet1.id, aws_subnet.private_subnet2.id]
+    instance_type  = "mq.t3.micro" # "mq.m5.large"
+    mode           = "SINGLE_INSTANCE" # "SINGLE_INSTANCE" or "CLUSTER_MULTI_AZ"
+
+    # Single instance only supports 1 subnet
+    subnets        = [aws_subnet.private_subnet1.id]
+    # subnets        = [aws_subnet.private_subnet1.id, aws_subnet.private_subnet2.id]
+
     admin_username = "rabbit-admin"
-    # Set your password or null to auto-generate.
-    admin_password = null
+    admin_password = null # Set to null to auto-generate.
+  }
+
+  redis = {
+    enabled = false
+    cluster_name   = "redis-cluster"
+    version        = "7.1"
+    instance_type  = "cache.t3.micro"
+    subnets        = [aws_subnet.private_subnet1.id, aws_subnet.private_subnet2.id]
+
+    cluster = {
+      enabled = true
+      multi_az    = true
+      node_groups = 2
+      replicas    = 1
+    }
+
   }
 }

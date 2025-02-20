@@ -50,6 +50,44 @@ resource "aws_elasticache_subnet_group" "redis_subnet_group" {
   }
 }
 
+resource "random_password" "redis_password" {
+  count = local.redis.enabled && local.redis.cluster.enabled ? 1 : 0
+
+  length  = 16
+  special = false
+}
+
+resource "aws_elasticache_user" "redis_admin_user" {
+  count = (local.redis.enabled && local.redis.cluster.enabled &&
+           upper(local.redis.cluster.auth_type) == "USER") ? 1 : 0
+
+  user_id       = "redis"
+  user_name     = "default" # Cannot change 1st default username
+  access_string = "on ~* +@all"
+  engine        = "redis"
+
+  authentication_mode {
+    type      = "password"
+    passwords = [coalesce(local.redis.cluster.password, random_password.redis_password[0].result)]
+  }
+}
+
+resource "aws_elasticache_user_group" "redis_user_group" {
+  count = (local.redis.enabled && local.redis.cluster.enabled &&
+           upper(local.redis.cluster.auth_type) == "USER") ? 1 : 0
+
+  engine        = "redis"
+  user_group_id = "${local.project}-redis-users"
+  user_ids      = [aws_elasticache_user.redis_admin_user[0].user_id]
+}
+
+resource "aws_cloudwatch_log_group" "redis_logs" {
+  count = local.redis.enabled ? 1 : 0
+
+  name              = "${local.redis.cluster_name}-logs"
+  retention_in_days = 7
+}
+
 resource "aws_elasticache_cluster" "redis" {
   count = local.redis.enabled && !local.redis.cluster.enabled ? 1 : 0
 
@@ -62,6 +100,13 @@ resource "aws_elasticache_cluster" "redis" {
   num_cache_nodes      = 1 # Must be one for Redis
   subnet_group_name    = aws_elasticache_subnet_group.redis_subnet_group[0].name
   security_group_ids   = [aws_security_group.redis_security_group[0].id]
+
+  log_delivery_configuration {
+    destination      = aws_cloudwatch_log_group.redis_logs[0].name
+    destination_type = "cloudwatch-logs"
+    log_format       = "text"
+    log_type         = "slow-log"
+  }
 
   depends_on = [
     aws_security_group.redis_security_group[0],
@@ -84,11 +129,29 @@ resource "aws_elasticache_replication_group" "redis" {
   security_group_ids          = [aws_security_group.redis_security_group[0].id]
   multi_az_enabled            = local.redis.cluster.multi_az
   num_node_groups             = local.redis.cluster.node_groups
-  replicas_per_node_group     = local.redis.cluster.replicas
+  replicas_per_node_group     = local.redis.cluster.replicas_per_node_group
+
+  transit_encryption_enabled  = true
+  auth_token                  = upper(local.redis.cluster.auth_type) == "TOKEN" ? coalesce(local.redis.cluster.password, random_password.redis_password[0].result) : null
+
+  user_group_ids              = upper(local.redis.cluster.auth_type) == "USER" ? [aws_elasticache_user_group.redis_user_group[0].user_group_id] : null
+  
+  log_delivery_configuration {
+    destination      = aws_cloudwatch_log_group.redis_logs[0].name
+    destination_type = "cloudwatch-logs"
+    log_format       = "text"
+    log_type         = "slow-log"
+  }
 
   depends_on = [
     aws_security_group.redis_security_group[0],
     aws_subnet.private_subnet1,
     aws_subnet.private_subnet2
   ]
+}
+
+output "redis_password" {
+  sensitive   = true
+  value       = try(random_password.redis_password[0].result, "null")
+  description = "The initial password/token for redis when it was created."
 }

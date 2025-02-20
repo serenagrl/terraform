@@ -30,8 +30,8 @@ locals {
   autoscaler = "karpenter"
 
   keda = {
-    enabled = true
-    http_addon = true
+    enabled = false
+    http_addon = false
   }
 
   ### Fargate Settings ###
@@ -62,7 +62,7 @@ locals {
 
   ### ECR settings ###
   ecr = {
-    enabled  = true
+    enabled  = false
     app_name = "<Your-Application-Namespace>"
     repositories = []
   }
@@ -86,17 +86,14 @@ locals {
     version        = "3.13"
     instance_type  = "mq.t3.micro" # "mq.m5.large"
     mode           = "SINGLE_INSTANCE" # "SINGLE_INSTANCE" or "CLUSTER_MULTI_AZ"
-
-    # Single instance only supports 1 subnet
-    subnets        = [aws_subnet.private_subnet1.id]
-    # subnets        = [aws_subnet.private_subnet1.id, aws_subnet.private_subnet2.id]
+    subnets        = [aws_subnet.private_subnet1.id, aws_subnet.private_subnet2.id]
 
     admin_username = "rabbit-admin"
     admin_password = null # Set to null to auto-generate.
   }
 
   redis = {
-    enabled = false
+    enabled = true
     cluster_name   = "redis-cluster"
     version        = "7.1"
     instance_type  = "cache.t3.micro"
@@ -104,9 +101,12 @@ locals {
 
     cluster = {
       enabled = true
+      auth_type   = "user" # "token" or "user"
+      password    = "r3dis-p0w3r-user" # Set to null to auto-generate.
       multi_az    = true
-      node_groups = 2
-      replicas    = 1
+
+      node_groups             = 2
+      replicas_per_node_group = 1
     }
 
   }

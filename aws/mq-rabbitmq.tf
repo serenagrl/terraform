@@ -73,8 +73,10 @@ resource "aws_mq_broker" "rabbitmq" {
   host_instance_type         = local.rabbitmq.instance_type
   deployment_mode            = local.rabbitmq.mode
   publicly_accessible        = false
-  subnet_ids                 = local.rabbitmq.subnets
   security_groups            = [aws_security_group.rabbitmq_security_group[0].id]
+
+  # Single instance only supports 1 subnet
+  subnet_ids                 = upper(local.rabbitmq.mode) == "SINGLE_INSTANCE" ? local.rabbitmq.subnets[0] : local.rabbitmq.subnets
 
   user {
     username = local.rabbitmq.admin_username
@@ -92,6 +94,5 @@ resource "aws_mq_broker" "rabbitmq" {
 output "rabbitmq_password" {
   sensitive   = true
   value       = try(aws_mq_broker.rabbitmq[0].user.*.password[0], "null")
-  # value = coalesce(local.rabbitmq.admin_password, random_password.rabbitmq_password.result)
   description = "The initial password for rabbitmq when it was created."
 }

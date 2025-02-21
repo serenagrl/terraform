@@ -92,22 +92,21 @@ locals {
     admin_password = null # Set to null to auto-generate.
   }
 
-  redis = {
-    enabled = true
+  cache = {
+    enabled = false
     cluster_name   = "redis-cluster"
+    engine         = "redis" # "redis" or "valkey"
     version        = "7.1"
     instance_type  = "cache.t3.micro"
     subnets        = [aws_subnet.private_subnet1.id, aws_subnet.private_subnet2.id]
+    auth_type      = "user" # "token" or "user"
+    password       = null # Set to null to auto-generate.
 
-    cluster = {
-      enabled = true
-      auth_type   = "user" # "token" or "user"
-      password    = "r3dis-p0w3r-user" # Set to null to auto-generate.
-      multi_az    = true
-
-      node_groups             = 2
-      replicas_per_node_group = 1
-    }
-
+    # Standalone single-node - cluster_enabled=false, nodes_and_replicas=[1,0], multi_az=false
+    # Multi node non-cluster - cluster_enabled=false, nodes_and_replicas=[1,2], multi_az=true
+    # Multi-node group cluster - cluster_enabled=true, nodes_and_replicas=[2,1], multi_az=true
+    cluster_enabled    = false
+    nodes_and_replicas = [1,0]
+    multi_az           = false
   }
 }

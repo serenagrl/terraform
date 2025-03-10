@@ -32,3 +32,12 @@ resource "helm_release" "ingress_nginx" {
     # aws_nat_gateway.nat_gw2,
     ]
 }
+
+data "kubernetes_service" "internal_ingress_service" {
+  metadata {
+    name = "ingress-nginx-controller-internal"
+    namespace = helm_release.ingress_nginx.metadata[0].namespace
+  }
+
+  depends_on = [helm_release.ingress_nginx]
+}

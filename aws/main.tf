@@ -10,29 +10,30 @@ module "vpc" {
 module "eks" {
   source = "./eks"
 
-  count             = local.eks.enabled ? 1 : 0
-  project           = local.project
-  region            = local.region
+  count                 = local.eks.enabled ? 1 : 0
+  project               = local.project
+  region                = local.region
 
-  vpc_id            = module.vpc.id
-  subnet_ids        = local.eks.subnet_ids
-  k8s_version       = local.eks.k8s_version
+  vpc_id                = module.vpc.id
+  subnet_ids            = local.eks.subnet_ids
+  k8s_version           = local.eks.k8s_version
 
-  ami               = local.eks.ami
-  capacity          = local.eks.capacity
-  instance_type     = local.eks.instance_type
-  disk_size         = local.eks.disk_size
-  desired_nodes     = local.eks.desired_nodes
-  min_nodes         = local.eks.min_nodes
-  max_nodes         = local.eks.max_nodes
+  ami                   = local.eks.ami
+  capacity              = local.eks.capacity
+  instance_type         = local.eks.instance_type
+  disk_size             = local.eks.disk_size
+  desired_nodes         = local.eks.desired_nodes
+  min_nodes             = local.eks.min_nodes
+  max_nodes             = local.eks.max_nodes
+  autoscaler_type       = local.eks.autoscaler_type
+  internal_ingress_host = local.eks.internal_ingress_host
 
-  autoscaler_type   = local.eks.autoscaler_type
-
-  keda_enabled      = local.eks.keda_enabled
-  keda_http_enabled = local.eks.keda_http_enabled
-
-  fargate_enabled   = local.eks.fargate_enabled
-  fargate_namespace = local.eks.fargate_namespace
+  keda_enabled          = local.eks.keda_enabled
+  keda_http_enabled     = local.eks.keda_http_enabled
+  fargate_enabled       = local.eks.fargate_enabled
+  fargate_namespace     = local.eks.fargate_namespace
+  argocd_enabled        = local.eks.argocd_enabled
+  dashboard_enabled     = local.eks.dashboard_enabled
 
   depends_on = [
     module.vpc,
@@ -146,4 +147,9 @@ module "cache" {
     module.vpc.private_subnet1,
     module.vpc.private_subnet2
   ]
+}
+
+
+output "internal_ingress_host" {
+  value = try(module.eks[0].internal_ingress_host, null)
 }

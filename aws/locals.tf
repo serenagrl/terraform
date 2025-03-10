@@ -4,7 +4,7 @@ locals {
 
   ### VPC Settings ###
   vpc = {
-    cidr    = "10.0.0.0/16"
+    cidr = "10.0.0.0/16"
 
     subnet_cidrs = {
       public   = ["10.0.0.0/20", "10.0.16.0/20"]
@@ -48,14 +48,15 @@ locals {
     max_nodes      = 6
 
     # Valid values are "cluster" or "karpenter"
-    autoscaler_type   = "karpenter"
+    autoscaler_type       = "karpenter"
+    internal_ingress_host = ""
 
-    keda_enabled      = false
-    keda_http_enabled = false
-
-    ### Fargate Settings ###
-    fargate_enabled   = false
-    fargate_namespace = "fargate-demo"
+    keda_enabled          = false
+    keda_http_enabled     = false
+    fargate_enabled       = false
+    fargate_namespace     = "fargate-demo"
+    argocd_enabled        = false
+    dashboard_enabled     = false
   }
 
   ### ECR settings ###
@@ -67,7 +68,7 @@ locals {
 
   ### RDS Postgres Settings ###
   postgres = {
-    enabled       = false
+    enabled       = true
     version       = "17.2"
     instance_type = "db.t4g.micro"
     subnet_ids    = [module.vpc.database_subnet1[0].id, module.vpc.database_subnet2[0].id]
@@ -79,22 +80,21 @@ locals {
 
   ### Amazon MQ RabbitMQ Broker Settings ###
   rabbitmq = {
-    enabled        = false
+    enabled        = true
     broker_name    = "rabbitmq"
     version        = "3.13"
     instance_type  = "mq.t3.micro" # "mq.m5.large"
     mode           = "SINGLE_INSTANCE" # "SINGLE_INSTANCE" or "CLUSTER_MULTI_AZ"
     subnet_ids     = [module.vpc.private_subnet1.id, module.vpc.private_subnet2.id]
-
     username       = "rabbit-admin"
     password       = null # Set to null to auto-generate.
   }
 
   cache = {
-    enabled        = false
+    enabled        = true
     cluster_name   = "redis-cluster"
     engine         = "redis" # "redis" or "valkey"
-    version        = "7.1"
+    version        = "7.2"
     instance_type  = "cache.t3.micro"
     subnet_ids     = [module.vpc.private_subnet1.id, module.vpc.private_subnet2.id]
     auth_type      = "user" # "token" or "user"

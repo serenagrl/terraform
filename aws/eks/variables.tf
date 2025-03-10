@@ -108,3 +108,21 @@ variable "keda_http_enabled" {
   default     = false
   description = "Indicates whether to enable KEDA HTTP add-on."
 }
+
+variable "dashboard_enabled" {
+  type        = bool
+  default     = false
+  description = "Indicates whether to deploy kubernetes dashboard."
+}
+
+variable "argocd_enabled" {
+  type        = bool
+  default     = false
+  description = "Indicates whether to deploy argocd."
+}
+
+variable "internal_ingress_host" {
+  type        = string
+  default     = ""
+  description = "The host for the internal ingress."
+}

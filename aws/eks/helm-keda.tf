@@ -7,7 +7,7 @@ resource "helm_release" "keda" {
   chart            = "keda"
   namespace        = "keda"
   create_namespace = true
-  version          = ">= 2.12"
+  version          = ">= 2.16"
 
   depends_on = [helm_release.ingress_nginx]
 }

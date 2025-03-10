@@ -1,0 +1,20 @@
+app:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - ${ingress_host}
+    pathType: ImplementationSpecific
+    path: /dashboard
+    issuer:
+      name: selfsigned
+      scope: disabled
+
+metrics-server:
+  enabled: false
+
+cert-manager:
+  enabled: false
+
+nginx:
+  enabled: false

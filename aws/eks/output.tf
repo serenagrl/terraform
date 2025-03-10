@@ -21,3 +21,7 @@ output "token" {
 output "cluster_security_group_id" {
   value = aws_eks_cluster.eks_cluster.vpc_config[0].cluster_security_group_id
 }
+
+output "internal_ingress_host" {
+  value = data.kubernetes_service.internal_ingress_service.status[0].load_balancer[0].ingress[0].hostname
+}

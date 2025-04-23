@@ -1,5 +1,5 @@
-Terraform templates to create a somewhat realistic EKS environment for testing/learning.
+Terraform templates to create a somewhat realistic environment for testing/learning.
 
-AKS version is still under development.
+Available for Amazon EKS and Microsoft AKS cloud environments.
 
 All these are work in progress. Use with caution.

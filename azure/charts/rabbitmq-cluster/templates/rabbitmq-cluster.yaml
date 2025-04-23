@@ -1,0 +1,51 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: rabbitmq
+spec:
+  replicas: 3
+  persistence:
+    storage: "10Gi"
+
+  image: rabbitmq:4.0.7-management-alpine
+
+  rabbitmq:
+    additionalConfig: |
+      cluster_partition_handling = autoheal
+      management.path_prefix = /rabbitmq
+
+  tolerations:
+    - effect: NoSchedule
+      key: rabbitmq-cluster
+      operator: Exists
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: role
+            operator: In
+            values:
+              - "rabbitmq-node"
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rabbitmq
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+spec:
+  ingressClassName: nginx-internal
+  rules:
+    - http:
+        paths:
+          - path: /rabbitmq
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: rabbitmq
+                port:
+                  number: 15672

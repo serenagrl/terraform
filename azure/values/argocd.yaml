@@ -1,0 +1,32 @@
+global:
+  domain: ""
+
+configs:
+  params:
+    server.basehref: /argocd
+    server.rootpath: /argocd
+  cm:
+    resource.exclusions: |
+      - apiGroups:
+          - cilium.io
+        kinds:
+          - CiliumIdentity
+        clusters:
+          - "*"
+
+crds:
+  install: true
+  keep: false
+
+server:
+  ingress:
+    enabled: true
+    controller: generic
+    annotations:
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+
+    ingressClassName: nginx-internal
+    path: /argocd
+    pathType: ImplementationSpecific

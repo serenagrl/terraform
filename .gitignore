@@ -3,6 +3,8 @@
 **/.terraform
 **/.vscode
 
+*.bak
+*.7z
 *.tfstate
 *.tfstate.*
 *.terraform*

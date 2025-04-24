@@ -67,14 +67,11 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "postgres" {
-
-  # NOTE: The following condition does not work for some reasons.
-  #       Comment out whole resource if extensions are not needed.
-  # count = local.postgres.enabled && local.postgres.extensions != "" ? 1 : 0
+  count = local.postgres.enabled && try(local.postgres.extensions, "") != "" ? 1 : 0
 
   name      = "azure.extensions"
   server_id = azurerm_postgresql_flexible_server.postgres[0].id
-  value     = local.postgres.extensions
+  value     = coalesce(local.postgres.extensions, " ") # Empty space to short circuit the validation.
 
   depends_on = [ azurerm_postgresql_flexible_server.postgres ]
 }

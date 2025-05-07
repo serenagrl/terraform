@@ -1,11 +1,22 @@
+variable "project" {
+  type        = string
+  default     = "terraform"
+  description = "The name of the project."
+}
+
 variable "vpc_id" {
   type        = string
   description = "The Id of the VPC to host the service."
 }
 
-variable "subnet_ids" {
+variable "private_route_table_ids" {
   type        = list(string)
-  description = "The Id of the Subnets that host the service."
+  description = "The private route table Ids."
+}
+
+variable "subnet_cidrs" {
+  type        = list(string)
+  description = "The IP address and CIDR for the database subnets."
 }
 
 variable "create_vpn_rule" {
@@ -31,10 +42,10 @@ variable "eks_security_group_id" {
   description = "The Security Group Id of the EKS."
 }
 
-variable "postgres_version" {
+variable "engine_version" {
   type        = string
   default     = "17.2"
-  description = "The versiob of postgres."
+  description = "The version of the database engine."
 }
 
 variable "instance_type" {
@@ -64,4 +75,10 @@ variable "password" {
   type        = string
   default     = ""
   description = "The default password. (Leave blank to auto-generate)."
+}
+
+variable "engine" {
+  type        = string
+  default     = "postgres"
+  description = "The database engine."
 }

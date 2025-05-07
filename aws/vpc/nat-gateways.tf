@@ -1,38 +1,22 @@
-resource "aws_eip" "eip1" {
+resource "aws_eip" "eips" {
+  count = length(var.subnet_cidrs.public)
+
   domain = "vpc"
 
   tags = {
-    Name = "${var.project}-eip-${var.region}a"
+    Name = "${var.project}-eip-${data.aws_availability_zones.default.names[count.index]}"
   }
 }
 
-resource "aws_eip" "eip2" {
-  domain = "vpc"
+resource "aws_nat_gateway" "nats" {
+  count = length(var.subnet_cidrs.public)
+
+  allocation_id = aws_eip.eips[count.index].id
+  subnet_id     = aws_subnet.public_subnets[count.index].id
 
   tags = {
-    Name = "${var.project}-eip-${var.region}b"
-  }
-}
-
-resource "aws_nat_gateway" "nat_gw1" {
-  allocation_id = aws_eip.eip1.id
-  subnet_id     = aws_subnet.public_subnet1.id
-
-  tags = {
-    Name = "${var.project}-nat-public1-${var.region}a"
+    Name = "${var.project}-nat-public-${data.aws_availability_zones.default.names[count.index]}"
   }
 
   depends_on = [ aws_internet_gateway.igw ]
-}
-
-resource "aws_nat_gateway" "nat_gw2" {
-  allocation_id = aws_eip.eip2.id
-  subnet_id     = aws_subnet.public_subnet2.id
-
-  tags = {
-    Name = "${var.project}-nat-public2-${var.region}b"
-  }
-
-  depends_on = [ aws_internet_gateway.igw ]
-
 }

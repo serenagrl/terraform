@@ -10,6 +10,6 @@ resource "aws_customer_gateway" "customer_gateway" {
   type       = "ipsec.1"
 
   tags = {
-    Name = "${var.project}-cgw"
+    Name = "${var.project}-customer-gateway"
   }
 }

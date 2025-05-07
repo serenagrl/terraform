@@ -15,68 +15,34 @@ resource "aws_route_table" "public_rtb" {
   }
 }
 
-resource "aws_route_table" "private_rtb1" {
+resource "aws_route_table" "private_rtbs" {
+  count = length(var.subnet_cidrs.private)
+
   vpc_id = aws_vpc.vpc.id
 
    route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_gw1.id
+    nat_gateway_id = aws_nat_gateway.nats[count.index].id
   }
 
   tags = {
-    Name = "${var.project}-rtb-private1-${var.region}a"
+    Name = "${var.project}-rtb-private-${data.aws_availability_zones.default.names[count.index]}"
   }
   lifecycle {
     ignore_changes = [route]
   }
 }
 
-resource "aws_route_table" "private_rtb2" {
-  vpc_id = aws_vpc.vpc.id
+resource "aws_route_table_association" "public_zones" {
+  count = length(aws_subnet.public_subnets)
 
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_gw2.id
-  }
-
-  tags = {
-    Name = "${var.project}-rtb-private2-${var.region}b"
-  }
-  lifecycle {
-    ignore_changes = [route]
-  }
-}
-
-resource "aws_route_table_association" "public_zone1" {
-  subnet_id      = aws_subnet.public_subnet1.id
+  subnet_id      = aws_subnet.public_subnets[count.index].id
   route_table_id = aws_route_table.public_rtb.id
 }
 
-resource "aws_route_table_association" "public_zone2" {
-  subnet_id      = aws_subnet.public_subnet2.id
-  route_table_id = aws_route_table.public_rtb.id
-}
+resource "aws_route_table_association" "private_zones" {
+  count = length(aws_subnet.private_subnets)
 
-resource "aws_route_table_association" "private_zone1" {
-  subnet_id      = aws_subnet.private_subnet1.id
-  route_table_id = aws_route_table.private_rtb1.id
-}
-
-resource "aws_route_table_association" "private_zone2" {
-  subnet_id      = aws_subnet.private_subnet2.id
-  route_table_id = aws_route_table.private_rtb2.id
-}
-
-resource "aws_route_table_association" "database_zone1" {
-  count = length(var.subnet_cidrs.database) > 0 ? 1 : 0
-
-  subnet_id      = aws_subnet.database_subnet1[0].id
-  route_table_id = aws_route_table.private_rtb1.id
-}
-
-resource "aws_route_table_association" "database_zone2" {
-  count = length(var.subnet_cidrs.database) > 0 ? 1 : 0
-
-  subnet_id      = aws_subnet.database_subnet2[0].id
-  route_table_id = aws_route_table.private_rtb2.id
+  subnet_id      = aws_subnet.private_subnets[count.index].id
+  route_table_id = aws_route_table.private_rtbs[count.index].id
 }

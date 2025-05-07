@@ -13,6 +13,5 @@ resource "helm_release" "argocd" {
               ingress_host = coalesce(var.internal_ingress_host, data.kubernetes_service.internal_ingress_service.status[0].load_balancer[0].ingress[0].hostname)
            })]
 
-
   depends_on = [helm_release.ingress_nginx]
 }

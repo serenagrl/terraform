@@ -55,9 +55,9 @@ module "vpn" {
   vpc_id                  = module.vpc.id
   vpc_cidr                = local.vpc.cidr
   gateway_type            = local.vpn.gateway_type
-  transit_subnet_ids      = [module.vpc.private_subnet1.id, module.vpc.private_subnet2.id]
+  transit_subnet_ids      = module.vpc.private_subnets.*.id
   customer_gateway_ip     = local.vpn.customer_gateway_ip
-  private_route_table_ids = [module.vpc.private_rtb1.id, module.vpc.private_rtb2.id]
+  private_route_table_ids = module.vpc.private_rtbs.*.id
   local_ipv4_cidr         = local.vpn.local_ipv4_cidr
   tunnel1_inside_cidr     = local.vpn.tunnel1_inside_cidr
   tunnel2_inside_cidr     = local.vpn.tunnel2_inside_cidr
@@ -72,21 +72,24 @@ module "vpn" {
 module "rds" {
   source = "./rds"
 
-  count = local.postgres.enabled ? 1 : 0
+  count = local.rds.enabled ? 1 : 0
 
-  vpc_id                = module.vpc.id
-  postgres_version      = local.postgres.version
-  instance_type         = local.postgres.instance_type
-  subnet_ids            = local.postgres.subnet_ids
-  multi_az              = local.postgres.multi_az
-  initial_db            = local.postgres.initial_db
-  username              = local.postgres.username
-  password              = local.postgres.password
+  project                 = local.project
+  vpc_id                  = module.vpc.id
+  engine                  = local.rds.engine
+  engine_version          = local.rds.engine_version
+  instance_type           = local.rds.instance_type
+  private_route_table_ids = module.vpc.private_rtbs.*.id
+  subnet_cidrs            = local.rds.subnet_cidrs
+  multi_az                = local.rds.multi_az
+  initial_db              = local.rds.postgres.initial_db
+  username                = local.rds.username
+  password                = local.rds.password
 
   create_vpn_rule       = local.vpn.enabled
   vpn_local_ipv4_cidr   = local.vpn.local_ipv4_cidr
-  create_eks_rule       = true
-  eks_security_group_id = module.eks[0].cluster_security_group_id
+  create_eks_rule       = local.eks.enabled
+  eks_security_group_id = local.eks.enabled ? module.eks[0].cluster_security_group_id : null
 
   depends_on = [
     module.vpc.database_subnet1,
@@ -110,8 +113,8 @@ module "amq" {
   password              = local.rabbitmq.password
   create_vpn_rule       = local.vpn.enabled
   vpn_local_ipv4_cidr   = local.vpn.local_ipv4_cidr
-  create_eks_rule       = true
-  eks_security_group_id = module.eks[0].cluster_security_group_id
+  create_eks_rule       = local.eks.enabled
+  eks_security_group_id = local.eks.enabled ? module.eks[0].cluster_security_group_id : null
 
   depends_on = [
     module.vpc.private_subnet1,
@@ -140,8 +143,8 @@ module "cache" {
 
   create_vpn_rule       = local.vpn.enabled
   vpn_local_ipv4_cidr   = local.vpn.local_ipv4_cidr
-  create_eks_rule       = true
-  eks_security_group_id = module.eks[0].cluster_security_group_id
+  create_eks_rule       = local.eks.enabled
+  eks_security_group_id = local.eks.enabled ? module.eks[0].cluster_security_group_id : null
 
   depends_on = [
     module.vpc.private_subnet1,

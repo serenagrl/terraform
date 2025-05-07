@@ -20,14 +20,7 @@ variable "subnet_cidrs" {
   type = object({
     public   = list(string)
     private  = list(string)
-    database = list(string)
   })
-  default = {
-      public   = ["10.0.0.0/20", "10.0.16.0/20"]
-      private  = ["10.0.128.0/20", "10.0.144.0/20"]
-      database = ["10.0.160.0/20", "10.0.176.0/20"]
-    }
 
   description = "The Subnets to create in the VPC."
-
 }

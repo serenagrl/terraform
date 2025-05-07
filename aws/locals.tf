@@ -8,14 +8,13 @@ locals {
 
     subnet_cidrs = {
       public   = ["10.0.0.0/20", "10.0.16.0/20"]
-      private  = ["10.0.128.0/20", "10.0.144.0/20"]
-      database = ["10.0.160.0/20", "10.0.176.0/20"]
+      private  = ["10.0.64.0/20", "10.0.80.0/20"]
     }
   }
 
   ### VPN Settings ###
   vpn = {
-    enabled = true
+    enabled = false
 
     # Valid values are "virtual_private" or "transit"
     gateway_type        = "virtual_private"
@@ -37,8 +36,8 @@ locals {
   eks = {
     enabled        = true
     # Takes latest recommended if not specified.
-    k8s_version    = ""
-    subnet_ids     = [module.vpc.private_subnet1.id, module.vpc.private_subnet2.id]
+    k8s_version    = "1.31"
+    subnet_ids     = module.vpc.private_subnets.*.id
     ami            = "AL2_x86_64"
     capacity       = "ON_DEMAND"
     instance_type  = "t3.medium"
@@ -48,7 +47,7 @@ locals {
     max_nodes      = 6
 
     # Valid values are "cluster" or "karpenter"
-    autoscaler_type       = "karpenter"
+    autoscaler_type       = "cluster"
     internal_ingress_host = ""
 
     keda_enabled          = false
@@ -66,37 +65,43 @@ locals {
     repositories = []
   }
 
-  ### RDS Postgres Settings ###
-  postgres = {
-    enabled       = true
-    version       = "17.2"
-    instance_type = "db.t4g.micro"
-    subnet_ids    = [module.vpc.database_subnet1[0].id, module.vpc.database_subnet2[0].id]
-    multi_az      = false
-    initial_db    = "broadcastdb"
+  ### Amazon RDS Settings ###
+  rds = {
+    enabled        = false
+    engine         = "postgres"
+    engine_version = "17.2"
+    instance_type  = "db.t4g.micro"
     username      = "postgres"
     password      = null # Set to null to auto-generate.
+    subnet_cidrs  = ["10.0.112.0/20", "10.0.128.0/20"]
+    multi_az      = true
+
+    ### RDS Postgres Settings ###
+    postgres = {
+      initial_db    = "broadcastdb"
+    }
   }
 
   ### Amazon MQ RabbitMQ Broker Settings ###
   rabbitmq = {
-    enabled        = true
+    enabled        = false
     broker_name    = "rabbitmq"
     version        = "3.13"
     instance_type  = "mq.t3.micro" # "mq.m5.large"
     mode           = "SINGLE_INSTANCE" # "SINGLE_INSTANCE" or "CLUSTER_MULTI_AZ"
-    subnet_ids     = [module.vpc.private_subnet1.id, module.vpc.private_subnet2.id]
+    subnet_ids     = module.vpc.private_subnets.*.id
     username       = "rabbit-admin"
     password       = null # Set to null to auto-generate.
   }
 
+  ### Amazon Elasticache Settings ###
   cache = {
-    enabled        = true
+    enabled        = false
     cluster_name   = "redis-cluster"
     engine         = "redis" # "redis" or "valkey"
     version        = "7.2"
     instance_type  = "cache.t3.micro"
-    subnet_ids     = [module.vpc.private_subnet1.id, module.vpc.private_subnet2.id]
+    subnet_ids     = module.vpc.private_subnets.*.id
     auth_type      = "user" # "token" or "user"
     password       = null # Set to null to auto-generate.
 
@@ -104,7 +109,7 @@ locals {
     # Multi node non-cluster - cluster_enabled=false, nodes_and_replicas=[1,2], multi_az=true
     # Multi-node group cluster - cluster_enabled=true, nodes_and_replicas=[2,1], multi_az=true
     cluster_enabled    = true
-    nodes_and_replicas = [1,2]
+    nodes_and_replicas = [1,1]
     multi_az           = true
   }
 }

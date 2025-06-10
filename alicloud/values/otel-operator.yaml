@@ -1,0 +1,6 @@
+fullnameOverride: ""
+
+manager:
+  collectorImage:
+    repository: "otel/opentelemetry-collector-contrib"
+    tag: latest

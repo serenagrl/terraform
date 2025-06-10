@@ -1,0 +1,10 @@
+apiVersion: storage.alibabacloud.com/v1beta1
+kind: ContainerNetworkFileSystem
+metadata:
+  name: cnfs-nas-filesystem
+spec:
+  description: "cnfs"
+  type: nas
+  reclaimPolicy: Retain
+  parameters:
+    server: {{ .Values.server }}

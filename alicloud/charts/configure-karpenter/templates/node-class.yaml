@@ -1,0 +1,13 @@
+apiVersion: karpenter.k8s.alibabacloud/v1alpha1
+kind: ECSNodeClass
+metadata:
+  name: karpenter-nc
+spec:
+  vSwitchSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: {{ .Values.clusterName }}
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: {{ .Values.clusterName }}
+  imageSelectorTerms:
+    - alias: ContainerOS

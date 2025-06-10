@@ -1,0 +1,14 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: cnfs
+mountOptions:
+  - nolock,tcp,noresvport
+  - vers=4
+parameters:
+  volumeAs: subpath
+  containerNetworkFileSystem: cnfs-nas-filesystem
+  path: "/"
+provisioner: nasplugin.csi.alibabacloud.com
+reclaimPolicy: Delete
+allowVolumeExpansion: true

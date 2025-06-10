@@ -36,9 +36,9 @@ locals {
   eks = {
     enabled        = true
     # Takes latest recommended if not specified.
-    k8s_version    = "1.31"
+    k8s_version    = ""
     subnet_ids     = module.vpc.private_subnets.*.id
-    ami            = "AL2_x86_64"
+    ami            = "AL2023_x86_64_STANDARD"
     capacity       = "ON_DEMAND"
     instance_type  = "t3.medium"
     disk_size      = 20

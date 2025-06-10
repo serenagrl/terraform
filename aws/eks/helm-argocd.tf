@@ -7,7 +7,7 @@ resource "helm_release" "argocd" {
   chart            = "argo-cd"
   namespace        = "argocd"
   create_namespace = true
-  version          = ">= 7.8"
+  version          = ">= 8.0"
 
   values = [templatefile("${path.module}/values/argocd.yaml", {
               ingress_host = coalesce(var.internal_ingress_host, data.kubernetes_service.internal_ingress_service.status[0].load_balancer[0].ingress[0].hostname)

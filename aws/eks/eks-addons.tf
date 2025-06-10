@@ -1,3 +1,6 @@
+# https://docs.aws.amazon.com/eks/latest/userguide/workloads-add-ons-available-eks.html
+# https://docs.aws.amazon.com/eks/latest/userguide/community-addons.html
+
 resource "aws_eks_addon" "coredns" {
   cluster_name = aws_eks_cluster.eks_cluster.name
   addon_name   = "coredns"

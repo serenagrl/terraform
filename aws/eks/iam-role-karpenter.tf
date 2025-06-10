@@ -53,3 +53,10 @@ resource "aws_iam_role_policy_attachment" "amazon_ssm_managed_instance_core_poli
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   role       = aws_iam_role.nodegroup_role.name
 }
+
+resource "aws_iam_role_policy_attachment" "amazon_ssm_managed_ec2_policy" {
+  count = upper(var.autoscaler_type) == "KARPENTER" ? 1 : 0
+
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedEC2InstanceDefaultPolicy"
+  role       = aws_iam_role.nodegroup_role.name
+}

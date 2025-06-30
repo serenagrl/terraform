@@ -1,8 +1,10 @@
 resource "alicloud_eip_address" "nats" {
   count = length(local.vpc.vswitch_cidrs.public)
 
-  address_name = "${local.project}-nat-ip-${data.alicloud_zones.default.zones[count.index].id}"
-  payment_type = "PayAsYouGo"
+  address_name         = "${local.project}-nat-ip-${data.alicloud_zones.default.zones[count.index].id}"
+  payment_type         = "PayAsYouGo"
+  internet_charge_type = "PayByTraffic"
+  bandwidth            = 20
 
   depends_on = [ alicloud_vpc.vpc ]
 }

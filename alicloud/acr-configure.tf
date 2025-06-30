@@ -54,17 +54,8 @@ resource "alicloud_cr_endpoint_acl_policy" "customer_gateway_ip" {
   depends_on = [ alicloud_cr_endpoint_acl_policy.nat2 ]
 }
 
-resource "alicloud_vswitch" "service_vswitch" {
-  count = local.acr.configure ? 1 : 0
-
-  vswitch_name = "${local.project}-service-vswitch-${data.alicloud_zones.default.zones.0.id}"
-  cidr_block   = local.acr.service_cidr
-  vpc_id       = alicloud_vpc.vpc.id
-  zone_id      = data.alicloud_zones.default.zones.0.id
-}
-
 resource "alicloud_cr_vpc_endpoint_linked_vpc" "cr_ee_vswitch_link" {
-  count = local.acr.configure ? 1 : 0
+  count = local.acr.configure && local.vpc.create_service_vswitch ? 1 : 0
 
   instance_id = data.alicloud_cr_ee_instances.acr[0].instances[0].id
   vpc_id      = alicloud_vpc.vpc.id

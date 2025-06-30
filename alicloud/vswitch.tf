@@ -20,7 +20,7 @@ resource "alicloud_vswitch" "private_vswitches" {
   zone_id      = data.alicloud_zones.default.zones[count.index].id
 
   tags = local.karpenter_tag
-  
+
   depends_on = [ alicloud_vpc.vpc ]
 }
 
@@ -34,4 +34,13 @@ resource "alicloud_vswitch" "terway_vswitches" {
 
   depends_on = [ alicloud_vpc.vpc ]
 
+}
+
+resource "alicloud_vswitch" "service_vswitch" {
+  count = local.vpc.create_service_vswitch ? 1 : 0
+
+  vswitch_name = "${local.project}-service-vswitch-${data.alicloud_zones.default.zones.0.id}"
+  cidr_block   = local.acr.service_cidr
+  vpc_id       = alicloud_vpc.vpc.id
+  zone_id      = data.alicloud_zones.default.zones.0.id
 }

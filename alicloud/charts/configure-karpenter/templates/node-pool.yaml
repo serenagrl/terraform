@@ -11,7 +11,7 @@ spec:
       requirements:
         - key: karpenter.k8s.alibabacloud/instance-category
           operator: In
-          values: ["g"]
+          values: ["u"]
         - key: kubernetes.io/arch
           operator: In
           values: ["amd64"]

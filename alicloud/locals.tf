@@ -11,15 +11,19 @@ locals {
   vpc = {
     cidr = "10.0.0.0/16"
 
+    # Set to true if you want to access to enterprise container registry or have KMS
+    create_service_vswitch = false
+
     vswitch_cidrs = {
       public  = ["10.0.16.0/20", "10.0.32.0/20"]
       private = ["10.0.64.0/20", "10.0.80.0/20"]
       pod     = ["10.0.112.0/20", "10.0.128.0/20"]
+      service = "10.0.0.0/24"
     }
   }
 
   vpn = {
-    enabled      = true
+    enabled      = false
     create_roles = false
 
     # Set your public IP address or null to auto-acquire.
@@ -34,15 +38,24 @@ locals {
     tunnel2_preshared_key = null
   }
 
+  dns_pvtz = {
+    enabled   = false
+    zone_name = "cloud.internal"
+  }
+
   ack = {
     enabled        = true
     create_roles   = true
     cluster_spec   = "ack.pro.small"
-    version        = "1.32.1-aliyun.1"
+    version        = "1.33.1-aliyun.1"
     service_cidr   = "192.168.0.0/16"
-    instance_types = ["ecs.g7.xlarge"] # "ecs.u1-c1m2.xlarge" "ecs.u1-c1m1.2xlarge"
+    instance_types = ["ecs.u1-c1m1.2xlarge"] # "ecs.u1-c1m2.xlarge" "ecs.u1-c1m1.2xlarge" "ecs.g7.xlarge"
     disk_category  = "cloud_essd"
     disk_size      = 40
+
+    # Register internal ingress hostname to DNS Private Zone.
+    ingress_pvtz_record = true
+    ingress_hostname    = "${local.project}"
 
     # Valid values are "default" or "karpenter"
     autoscaler_type = "karpenter"
@@ -52,8 +65,13 @@ locals {
 
     argocd_enabled                = true
     telemetry_enabled             = true
+    secret_manager_enabled        = false
     csi_recycle_bin_enabled       = false
     csi_recycle_bin_reserved_days = 7
+  }
+
+  kms = {
+    enabled = false
   }
 
   # NOTE: Container Registry Enterprise Edition is Subscription-based and cannot be properly managed by terraform.

@@ -1,5 +1,9 @@
 terraform {
   required_providers {
+    helm = {
+      source = "hashicorp/helm"
+      version = ">= 2.17"
+    }
     alicloud = {
       source = "aliyun/alicloud"
       version = ">= 1.247"
@@ -13,6 +17,7 @@ terraform {
 
 provider "alicloud" {
   region     = local.region
+  # profile    = "default"
   access_key = local.access_key
   secret_key = local.secret_key
 }
@@ -24,7 +29,8 @@ data "alicloud_cs_cluster_credential" "ack" {
   output_file = "~/.kube/${local.project}-cluster"
 
   depends_on = [
-    alicloud_cs_managed_kubernetes.ack
+    alicloud_cs_managed_kubernetes.ack,
+    alicloud_cs_kubernetes_node_pool.default
   ]
 }
 
@@ -35,5 +41,5 @@ provider "helm" {
 }
 
 provider "kubernetes" {
-  config_path = "~/.kube/${local.project}-cluster"
+  config_paths = ["~/.kube/${local.project}-cluster"]
 }

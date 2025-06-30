@@ -60,11 +60,21 @@ resource "alicloud_vpn_connection" "s2s_vpn" {
   }
 }
 
-resource "alicloud_route_entry" "on_premise_routes" {
+resource "alicloud_route_entry" "on_premise_private" {
   count = local.vpn.enabled ? length(local.vpc.vswitch_cidrs.private) : 0
 
   name                  = "${local.project}-on-premise-route"
   route_table_id        = alicloud_route_table.private_rtbs[count.index].id
+  destination_cidrblock = local.vpn.on_premise_cidr[0]
+  nexthop_type          = "VpnGateway"
+  nexthop_id            = alicloud_vpn_gateway.alicloud[0].id
+}
+
+resource "alicloud_route_entry" "on_premise_pod" {
+  count = local.vpn.enabled ? length(local.vpc.vswitch_cidrs.pod) : 0
+
+  name                  = "${local.project}-on-premise-route"
+  route_table_id        = alicloud_route_table.pod_rtbs[count.index].id
   destination_cidrblock = local.vpn.on_premise_cidr[0]
   nexthop_type          = "VpnGateway"
   nexthop_id            = alicloud_vpn_gateway.alicloud[0].id

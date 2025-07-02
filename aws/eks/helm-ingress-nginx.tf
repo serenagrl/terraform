@@ -25,7 +25,7 @@ resource "helm_release" "ingress_nginx" {
 data "kubernetes_service" "internal_ingress_service" {
   metadata {
     name = "ingress-nginx-controller-internal"
-    namespace = helm_release.ingress_nginx.metadata[0].namespace
+    namespace = helm_release.ingress_nginx.metadata.namespace
   }
 
   depends_on = [helm_release.ingress_nginx]

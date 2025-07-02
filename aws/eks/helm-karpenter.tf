@@ -24,17 +24,18 @@ resource "helm_release" "karpenter" {
   repository = "oci://public.ecr.aws/karpenter"
   chart      = "karpenter"
   namespace  = "kube-system"
-  version    = ">= 1.5"
+  # version    = "1.5"
 
-  set {
-    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = aws_iam_role.controller[0].arn
-  }
-
-  set {
-    name  = "settings.clusterName"
-    value = aws_eks_cluster.eks_cluster.name
-  }
+  set = [
+    {
+      name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+      value = aws_iam_role.controller[0].arn
+    },
+    {
+      name  = "settings.clusterName"
+      value = aws_eks_cluster.eks_cluster.name
+    }
+  ]
 
   depends_on = [
     aws_ec2_tag.tag_eks_cluster_security_group,
@@ -59,15 +60,16 @@ resource "helm_release" "configure_karpenter" {
   name  = "configure-karpenter"
   chart = "${path.module}/charts/configure-karpenter"
 
-  set {
-    name  = "clusterName"
-    value = aws_eks_cluster.eks_cluster.name
-  }
-
-  set {
-    name  = "amiId"
-    value = data.aws_ssm_parameter.ami.value
-  }
+  set = [
+    {
+      name  = "clusterName"
+      value = aws_eks_cluster.eks_cluster.name
+    },
+    {
+      name  = "amiId"
+      value = data.aws_ssm_parameter.ami.value
+    }
+  ]
 
   depends_on = [
     helm_release.karpenter,

@@ -6,13 +6,17 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 5.0"
+      # version = ">= 5.0"
+    }
+    helm = {
+      source = "hashicorp/helm"
+      # version = ">= 3"
     }
   }
 }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = local.eks.enabled ? module.eks[0].endpoint : ""
     cluster_ca_certificate = local.eks.enabled ? module.eks[0].ca_cert : ""
     token                  = local.eks.enabled ? module.eks[0].token: ""

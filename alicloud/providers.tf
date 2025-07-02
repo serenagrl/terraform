@@ -2,15 +2,15 @@ terraform {
   required_providers {
     helm = {
       source = "hashicorp/helm"
-      version = ">= 2.17"
+      # version = ">= 3"
     }
     alicloud = {
       source = "aliyun/alicloud"
-      version = ">= 1.247"
+      # version = ">= 1.252"
     }
     curl = {
       source = "anschoewe/curl"
-      version = ">= 1.0.2"
+      # version = ">= 1.0.2"
     }
   }
 }
@@ -35,7 +35,7 @@ data "alicloud_cs_cluster_credential" "ack" {
 }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     config_path = "~/.kube/${local.project}-cluster"
   }
 }

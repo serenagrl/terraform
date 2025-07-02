@@ -6,7 +6,7 @@ resource "helm_release" "open_telemetry_operator" {
   chart            = "opentelemetry-operator"
   namespace        = "opentelemetry"
   create_namespace = true
-  version          = ">= 0.84.2"
+  # version          = "0.84.2"
   wait             = true
   timeout          = 900
 

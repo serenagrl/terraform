@@ -6,7 +6,7 @@ resource "helm_release" "argocd" {
   chart            = "argo-cd"
   namespace        = "argocd"
   create_namespace = true
-  version          = ">= 7.8"
+  # version          = "7.8"
   values           = [templatefile("${path.module}/values/argocd.yaml", {})]
   wait             = true
   timeout          = 1200

@@ -9,7 +9,7 @@ resource "helm_release" "karpenter" {
   repository       = "https://cloudpilot-ai.github.io/karpenter-provider-alibabacloud"
   chart            = "karpenter"
   namespace        = "karpenter-system"
-  version          = ">= 0.2.0"
+  # version          = "0.2.0"
   create_namespace = true
   wait             = true
 
@@ -32,10 +32,12 @@ resource "helm_release" "configure_karpenter" {
   name  = "configure-karpenter"
   chart = "./charts/configure-karpenter"
 
-  set {
-    name  = "clusterName"
-    value = alicloud_cs_managed_kubernetes.ack[0].name
-  }
+  set = [
+    {
+      name  = "clusterName"
+      value = alicloud_cs_managed_kubernetes.ack[0].name
+    }
+  ]
 
   depends_on = [
     helm_release.karpenter,

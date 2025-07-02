@@ -7,19 +7,20 @@ resource "helm_release" "cert_manager" {
   chart            = "cert-manager"
   namespace        = "cert-manager"
   create_namespace = true
-  version          = ">= 1.16"
+  # version          = "1.16"
   wait             = true
   timeout          = 900
 
-  set {
-    name  = "crds.enabled"
-    value = "true"
-  }
-
-  set {
-    name  = "crds.keep"
-    value = "false"
-  }
+  set = [
+    {
+      name  = "crds.enabled"
+      value = "true"
+    },
+    {
+      name  = "crds.keep"
+      value = "false"
+    }
+  ]
 
   depends_on = [
     alicloud_cs_managed_kubernetes.ack,

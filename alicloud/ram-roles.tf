@@ -119,11 +119,11 @@ variable "ram_roles" {
 # WARNING: For some reasons, RAM roles need to be created before anything else to ensure continuous use of
 #          terraform apply and destroy operations.
 resource "alicloud_ram_role" "ram_roles" {
-  for_each    = { for role in var.ram_roles : role.name => role if local.create_roles }
-  name        = each.value.name
-  document    = each.value.policy_document
-  description = each.value.description
-  force       = true
+  for_each                    = { for role in var.ram_roles : role.name => role if local.create_roles }
+  role_name                   = each.value.name
+  assume_role_policy_document = each.value.policy_document
+  description                 = each.value.description
+  force                       = true
 }
 
 # Attach system policies to RAM roles.

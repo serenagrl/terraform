@@ -7,7 +7,7 @@ resource "helm_release" "keda" {
   chart            = "keda"
   namespace        = "keda"
   create_namespace = true
-  version          = ">= 2.16"
+  # version          = "2.16"
 
   depends_on = [helm_release.ingress_nginx]
 }
@@ -22,15 +22,16 @@ resource "helm_release" "keda-http" {
   create_namespace = true
   version          = ">= 0.9"
 
-  set {
-    name  = "interceptor.replicas.waitTimeout"
-    value = "180s"
-  }
-
-  set {
-    name  = "interceptor.responseHeaderTimeout"
-    value = "180s"
-  }
+  set = [
+    {
+      name  = "interceptor.replicas.waitTimeout"
+      value = "180s"
+    },
+    {
+      name  = "interceptor.responseHeaderTimeout"
+      value = "180s"
+    }
+  ]
 
   depends_on = [helm_release.keda]
 }

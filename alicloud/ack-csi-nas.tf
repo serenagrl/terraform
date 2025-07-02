@@ -77,10 +77,12 @@ resource "helm_release" "configure_cnfs" {
   name             = "configure-cnfs"
   chart            = "./charts/configure-cnfs"
 
-  set {
-    name  = "server"
-    value = alicloud_nas_mount_target.file_csi[0].mount_target_domain
-  }
+  set = [
+    {
+      name  = "server"
+      value = alicloud_nas_mount_target.file_csi[0].mount_target_domain
+    }
+  ]
 
   depends_on = [
     alicloud_cs_managed_kubernetes.ack,

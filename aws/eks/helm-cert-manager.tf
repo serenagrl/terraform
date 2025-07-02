@@ -5,17 +5,18 @@ resource "helm_release" "cert_manager" {
   chart            = "cert-manager"
   namespace        = "cert-manager"
   create_namespace = true
-  version          = "v1.16.2"
+  # version          = "1.16.2"
 
-  set {
-    name  = "crds.enabled"
-    value = "true"
-  }
-
-  set {
-    name  = "crds.keep"
-    value = "false"
-  }
+  set = [
+    {
+      name  = "crds.enabled"
+      value = "true"
+    },
+    {
+      name  = "crds.keep"
+      value = "false"
+    }
+  ]
 
   depends_on = [helm_release.ingress_nginx]
 }

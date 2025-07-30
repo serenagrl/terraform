@@ -29,7 +29,7 @@ resource "aws_eks_addon" "eks_pod_identity_agent" {
   depends_on = [aws_eks_cluster.eks_cluster]
 }
 
-resource "aws_eks_addon" "aws-efs-csi-driver" {
+resource "aws_eks_addon" "aws_efs_csi_driver" {
   cluster_name = aws_eks_cluster.eks_cluster.name
   addon_name   = "aws-efs-csi-driver"
 

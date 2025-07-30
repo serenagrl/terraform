@@ -20,7 +20,7 @@ resource "kubernetes_storage_class_v1" "efs" {
   mount_options = ["iam"]
 
   depends_on = [
-    aws_eks_addon.aws-efs-csi-driver,
+    aws_eks_addon.aws_efs_csi_driver,
     kubernetes_service_account_v1.storage_sa
   ]
 

@@ -6,7 +6,7 @@ resource "helm_release" "rabbitmq_cluster_operator" {
   chart            = "rabbitmq-cluster-operator"
   namespace        = "rabbitmq"
   create_namespace = true
-  version          = ">= 4.4"
+  # version          = "4.4"
   wait             = true
 
   depends_on = [
@@ -22,7 +22,7 @@ resource "helm_release" "rabbitmq_cluster" {
   count = local.aks.enabled && local.aks.rabbitmq_enabled ? 1 : 0
 
   name             = "rabbitmq-cluster"
-  chart            = "./charts/rabbitmq-cluster"
+  chart            = "./charts/create-rabbitmq-cluster"
   namespace        = "rabbitmq-cluster"
   create_namespace = true
 

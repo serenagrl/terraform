@@ -34,13 +34,3 @@ resource "aws_iam_role_policy_attachment" "amazon_efs_csi_driver_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
   role       = aws_iam_role.nodegroup_role.name
 }
-
-resource "aws_iam_role_policy_attachment" "aws_xray_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
-  role       = aws_iam_role.nodegroup_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "cloud_watch_agent_server_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
-  role       = aws_iam_role.nodegroup_role.name
-}

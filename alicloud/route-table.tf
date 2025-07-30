@@ -48,3 +48,28 @@ resource "alicloud_route_table_attachment" "pod_attachment" {
   vswitch_id     = alicloud_vswitch.terway_vswitches[count.index].id
   route_table_id = alicloud_route_table.pod_rtbs[count.index].id
 }
+
+resource "alicloud_route_table" "service_rtb" {
+  count = local.vpc.create_service_vswitch ? 1 : 0
+
+  route_table_name = "${local.project}-rtb-service"
+  description      = "Service VSwitch Route Table"
+  vpc_id           = alicloud_vpc.vpc.id
+  associate_type   = "VSwitch"
+}
+
+resource "alicloud_route_entry" "service_routes" {
+  count = local.vpc.create_service_vswitch ? 1 : 0
+
+  route_table_id        = alicloud_route_table.service_rtb[0].id
+  destination_cidrblock = "0.0.0.0/0"
+  nexthop_type          = "NatGateway"
+  nexthop_id            = alicloud_nat_gateway.nats[count.index].id
+}
+
+resource "alicloud_route_table_attachment" "service_attachment" {
+  count = local.vpc.create_service_vswitch ? 1 : 0
+
+  vswitch_id     = alicloud_vswitch.service_vswitch[0].id
+  route_table_id = alicloud_route_table.service_rtb[0].id
+}

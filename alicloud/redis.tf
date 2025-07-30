@@ -14,7 +14,7 @@ resource "alicloud_kvstore_instance" "default" {
   payment_type      = "PostPaid"
 
   resource_group_id = alicloud_resource_manager_resource_group.ack.id
-  vswitch_id        = alicloud_vswitch.private_vswitches[0].id
+  vswitch_id        = alicloud_vswitch.service_vswitch[0].id
   zone_id           = data.alicloud_zones.default.zones[0].id
   secondary_zone_id = local.redis.high_availability ? data.alicloud_zones.default.zones[1].id : null
   security_ips      = concat(local.vpc.vswitch_cidrs.pod, local.vpn.on_premise_cidr)
@@ -22,7 +22,7 @@ resource "alicloud_kvstore_instance" "default" {
   engine_version    = local.redis.engine_version
   instance_class    = local.redis.instance_class
   shard_count       = local.redis.shard_count
-
+  ssl_enable        = "Enable"
   password          = local.redis.password != null && local.redis.password != "" ? local.redis.password : random_password.cache_password[0].result
 }
 

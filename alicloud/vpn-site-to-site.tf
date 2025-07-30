@@ -79,3 +79,13 @@ resource "alicloud_route_entry" "on_premise_pod" {
   nexthop_type          = "VpnGateway"
   nexthop_id            = alicloud_vpn_gateway.alicloud[0].id
 }
+
+resource "alicloud_route_entry" "on_premise_service" {
+  count = local.vpn.enabled && local.vpc.create_service_vswitch ? 1 : 0
+
+  name                  = "${local.project}-on-premise-route"
+  route_table_id        = alicloud_route_table.service_rtb[0].id
+  destination_cidrblock = local.vpn.on_premise_cidr[0]
+  nexthop_type          = "VpnGateway"
+  nexthop_id            = alicloud_vpn_gateway.alicloud[0].id
+}

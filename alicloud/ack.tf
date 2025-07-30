@@ -51,6 +51,7 @@ resource "alicloud_cs_managed_kubernetes" "ack" {
 
   depends_on = [
     alicloud_ram_role.ram_roles,
+    alicloud_security_group.ack,
     alicloud_ram_role_policy_attachment.ram_roles_policy_attachment,
     alicloud_resource_manager_service_linked_role.arms_role,
     alicloud_log_project.ack_logtail_ds,
@@ -82,6 +83,7 @@ resource "alicloud_cs_kubernetes_node_pool" "default" {
 
   depends_on = [
     alicloud_ram_role.ram_roles,
+    alicloud_security_group.ack,
     alicloud_ram_role_policy_attachment.ram_roles_policy_attachment,
     alicloud_cs_managed_kubernetes.ack
   ]

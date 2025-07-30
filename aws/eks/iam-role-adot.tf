@@ -19,12 +19,12 @@ resource "aws_iam_role" "adot" {
   assume_role_policy = data.aws_iam_policy_document.adot.json
 }
 
-resource "aws_iam_role_policy_attachment" "adot_aws_xray_policy" {
+resource "aws_iam_role_policy_attachment" "aws_xray_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
   role       = aws_iam_role.adot.name
 }
 
-resource "aws_iam_role_policy_attachment" "adot_cloud_watch_agent_server_policy" {
+resource "aws_iam_role_policy_attachment" "cloud_watch_agent_server_policy" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
   role       = aws_iam_role.adot.name
 }

@@ -11,7 +11,7 @@ locals {
   vpc = {
     cidr = "10.0.0.0/16"
 
-    # Set to true if you want to access to enterprise container registry or have KMS
+    # Set to true if you have enterprise container registry, Redis or KMS
     create_service_vswitch = false
 
     vswitch_cidrs = {
@@ -85,7 +85,7 @@ locals {
 
   # NOTE: You need to manually remove the instance from ApsaraDB Postgres Recycle Bin.
   postgres = {
-    enabled          = true
+    enabled          = false
     create_roles     = true
     version          = "17.0"
     instance_storage = "10"
@@ -106,7 +106,7 @@ locals {
   # NOTE: You need to manually remove the RabbitMQ instance from ApsaraMQ. The terraform provider does not remove
   #       it when running terraform destroy.
   rabbitmq = {
-    enabled       = true
+    enabled       = false
 
     # NOTE: Recommended to leave this to false and then manually agree to add the roles from the Portal.
     # WARNING: Roles cannot be removed when 'terraform destroy' because the provider does not remove the rabbitmq instance.
@@ -120,7 +120,7 @@ locals {
 
   # NOTE: You need to manually remove the instance from Tair Redis Recycle Bin.
   redis = {
-    enabled           = true
+    enabled           = false
     engine_version    = "7.0"
     instance_name     = "${local.project}-redis-cache"
     password          = null

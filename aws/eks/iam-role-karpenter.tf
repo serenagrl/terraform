@@ -1,21 +1,10 @@
 data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
 
-data "aws_iam_policy_document" "controller_assume_role" {
-  statement {
-    principals {
-      type        = "Service"
-      identifiers = ["pods.eks.amazonaws.com"]
-    }
-
-    actions = ["sts:AssumeRole","sts:TagSession"]
-  }
-}
-
 resource "aws_iam_role" "controller" {
   count = upper(var.autoscaler_type) == "KARPENTER" ? 1 : 0
   name                  = "${aws_eks_cluster.eks_cluster.name}-karpenter-controller"
-  assume_role_policy    = data.aws_iam_policy_document.controller_assume_role.json
+  assume_role_policy    = data.aws_iam_policy_document.pod_id_policy.json
 }
 
 resource "aws_iam_policy" "controller" {

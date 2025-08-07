@@ -27,6 +27,7 @@ module "eks" {
   max_nodes             = local.eks.max_nodes
   autoscaler_type       = local.eks.autoscaler_type
   internal_ingress_host = local.eks.internal_ingress_host
+  use_secrets_manager   = local.eks.use_secrets_manager
 
   keda_enabled          = local.eks.keda_enabled
   keda_http_enabled     = local.eks.keda_http_enabled

@@ -1,15 +1,3 @@
-data "aws_iam_policy_document" "autoscaler_policy" {
-  statement {
-    effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["pods.eks.amazonaws.com"]
-    }
-
-    actions = ["sts:AssumeRole", "sts:TagSession"]
-  }
-}
-
 data "aws_iam_policy_document" "custom_autoscaler_policy" {
   statement {
     effect = "Allow"
@@ -42,7 +30,7 @@ resource "aws_iam_role" "cluster_autoscaler" {
   count = upper(var.autoscaler_type) == "CLUSTER" ? 1 : 0
 
   name = "${aws_eks_cluster.eks_cluster.name}-autoscaler"
-  assume_role_policy = data.aws_iam_policy_document.autoscaler_policy.json
+  assume_role_policy = data.aws_iam_policy_document.pod_id_policy.json
 }
 
 resource "aws_iam_policy" "cluster_autoscaler" {

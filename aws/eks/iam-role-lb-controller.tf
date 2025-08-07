@@ -1,22 +1,6 @@
-data "aws_iam_policy_document" "lbc" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["pods.eks.amazonaws.com"]
-    }
-
-    actions = [
-      "sts:AssumeRole",
-      "sts:TagSession"
-    ]
-  }
-}
-
 resource "aws_iam_role" "lbc" {
   name               = "${aws_eks_cluster.eks_cluster.name}-aws-lbc"
-  assume_role_policy = data.aws_iam_policy_document.lbc.json
+  assume_role_policy = data.aws_iam_policy_document.pod_id_policy.json
 }
 
 resource "aws_iam_policy" "lbc" {

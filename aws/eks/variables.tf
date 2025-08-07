@@ -68,6 +68,12 @@ variable "max_nodes" {
   description = "The maximum number of nodes allowed."
 }
 
+variable "use_secrets_manager" {
+  type        = bool
+  default     = false
+  description = "Indicates whether to configure for secrets manager."
+}
+
 variable "fargate_enabled" {
   type        = bool
   default     = false

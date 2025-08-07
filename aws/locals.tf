@@ -36,7 +36,8 @@ locals {
   eks = {
     enabled        = true
     # Takes latest recommended if not specified.
-    k8s_version    = ""
+    # NOTE: ADOT add-on always can't support latest version of K8s.
+    k8s_version    = "1.32"
     subnet_ids     = module.vpc.private_subnets.*.id
     ami            = "AL2023_x86_64_STANDARD"
     capacity       = "ON_DEMAND"
@@ -46,16 +47,19 @@ locals {
     min_nodes      = 2
     max_nodes      = 6
 
+    # Configure eks to be able to use AWS Secrets Manager.
+    use_secrets_manager = false
+
     # Valid values are "cluster" or "karpenter"
     autoscaler_type       = "cluster"
     internal_ingress_host = ""
 
-    keda_enabled          = false
-    keda_http_enabled     = false
-    fargate_enabled       = false
-    fargate_namespace     = "fargate-demo"
-    argocd_enabled        = false
-    dashboard_enabled     = false
+    keda_enabled      = false
+    keda_http_enabled = false
+    fargate_enabled   = false
+    fargate_namespace = "fargate-demo"
+    argocd_enabled    = false
+    dashboard_enabled = false
   }
 
   ### ECR settings ###

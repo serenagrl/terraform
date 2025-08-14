@@ -46,6 +46,11 @@ locals {
     argocd_enabled               = true
     rabbitmq_enabled             = true
     rabbitmq_vm_size             = "Standard_B2als_v2"
+    external_secrets_enabled     = true
+  }
+
+  key_vault = {
+    enabled = true
   }
 
   postgres = {

@@ -9,6 +9,8 @@ resource "helm_release" "rabbitmq_cluster_operator" {
   # version          = "4.4"
   wait             = true
 
+  values = [templatefile("${path.module}/values/rabbitmq-cluster-operator.yaml", {})]
+
   depends_on = [
     azurerm_kubernetes_cluster_node_pool.rabbitmq,
     azurerm_nat_gateway_public_ip_association.nat_ip_assoc,

@@ -1,7 +1,7 @@
 resource "azurerm_storage_account" "file_csi" {
   count = local.aks.enabled ? 1 : 0
 
-  name                          = "${local.project}csistoragernd"
+  name                          = local.aks.csi_storage_account_name
   resource_group_name           = azurerm_kubernetes_cluster.aks[0].node_resource_group
   location                      = azurerm_resource_group.aks.location
   account_tier                  = "Standard"

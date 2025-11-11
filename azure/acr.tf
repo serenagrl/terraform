@@ -1,12 +1,12 @@
 resource "azurerm_container_registry" "container_registry" {
   count = local.aks.acr_enabled ? 1 : 0
 
-  name                = "Consolsys01"
+  name                = local.aks.acr_name
   location            = azurerm_resource_group.aks.location
   resource_group_name = azurerm_resource_group.aks.name
   sku                 = "Basic"
   admin_enabled       = true
-  
+
 }
 
 resource "azurerm_role_assignment" "aks_container_registry_integration" {

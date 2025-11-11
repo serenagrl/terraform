@@ -7,7 +7,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "rabbitmq" {
   vnet_subnet_id         = azurerm_subnet.aks.id
   orchestrator_version   = local.aks.k8s_version
   node_public_ip_enabled = false
-  zones                  = [1, 2, 3]
+  zones                  = local.aks.rabbitmq_zones
   auto_scaling_enabled   = true
   node_count             = 3
   min_count              = 3

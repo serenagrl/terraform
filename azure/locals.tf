@@ -38,14 +38,17 @@ locals {
     min_count            = 2
     max_count            = 4
 
-    image_cleaner_enabled        = true
+    csi_storage_account_name     = "${local.project}csistorage" # Must be unique name across azure, no dash or spaces.
+    image_cleaner_enabled        = false
     image_cleaner_interval_hours = 24
     azure_policy_enabled         = false
     karpenter_enabled            = false
     acr_enabled                  = true
+    acr_name                     = "Consolsys01" # Must be unique name across azure
     argocd_enabled               = true
     rabbitmq_enabled             = true
     rabbitmq_vm_size             = "Standard_B2als_v2"
+    rabbitmq_zones               = [1, 2, 3]
     external_secrets_enabled     = true
   }
 
@@ -64,13 +67,13 @@ locals {
   }
 
   redis = {
-    enabled             = true
-    name                = "${local.project}-redis" # Must be unique name across azure
-    sku                 = "Basic" # "Basic", "Standard" or "Premium".
+    enabled = true
+    name    = "${local.project}-redis" # Must be unique name across azure
+    sku     = "Basic" # "Basic", "Standard" or "Premium".
 
     # Basic & Standard tier supported capacity from 0 to 6.
     # Premium tier supported capacity from 1 to 5.
-    capacity            = 0
+    capacity = 0
 
     # 3 shards can only support a maximum of 1 replica.
     # 2 shards can only support a maximum of 2 replicas.

@@ -8,10 +8,10 @@ resource "azurerm_kubernetes_cluster_node_pool" "rabbitmq" {
   orchestrator_version   = local.aks.k8s_version
   node_public_ip_enabled = false
   zones                  = local.aks.rabbitmq_zones
-  auto_scaling_enabled   = true
+  auto_scaling_enabled   = false
   node_count             = 3
-  min_count              = 3
-  max_count              = 5
+  min_count              = null
+  max_count              = null
 
   node_labels = {
     role = "rabbitmq-node"

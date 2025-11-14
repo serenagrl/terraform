@@ -1,0 +1,6 @@
+apiVersion: karpenter.azure.com/v1beta1
+kind: AKSNodeClass
+metadata:
+  name: karpenter-nc
+spec:
+  imageFamily: Ubuntu2204

@@ -16,7 +16,7 @@ resource "azurerm_role_assignment" "karpenter_network_role" {
 resource "azapi_update_resource" "nap" {
   count = local.aks.enabled && local.aks.karpenter_enabled ? 1 : 0
 
-  type                    = "Microsoft.ContainerService/managedClusters@2025-02-02-preview"
+  type                    = "Microsoft.ContainerService/managedClusters@2025-09-01"
   resource_id             = azurerm_kubernetes_cluster.aks[0].id
   ignore_missing_property = true
   body = {

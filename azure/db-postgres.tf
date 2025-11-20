@@ -2,8 +2,8 @@
 resource "azurerm_subnet" "database" {
   count = local.postgres.enabled ? 1 : 0
 
-  name                            = "${local.project}-database-subnet"
-  address_prefixes                = ["${local.vnet.subnet_cidrs.database}"]
+  name                            = "${local.project}-pgsql-database-subnet"
+  address_prefixes                = ["${local.postgres.subnet_cidr}"]
   resource_group_name             = azurerm_resource_group.aks.name
   virtual_network_name            = azurerm_virtual_network.vnet.name
   default_outbound_access_enabled = "false"

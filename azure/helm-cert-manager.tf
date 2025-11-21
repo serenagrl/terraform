@@ -1,6 +1,7 @@
 resource "helm_release" "cert_manager" {
-  name = "cert-manager"
+  count = local.aks.enabled ? 1 : 0
 
+  name             = "cert-manager"
   repository       = "https://charts.jetstack.io"
   chart            = "cert-manager"
   namespace        = "cert-manager"

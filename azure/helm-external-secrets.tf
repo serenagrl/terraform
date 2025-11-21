@@ -1,8 +1,7 @@
 resource "helm_release" "external_secrets" {
-  count = local.aks.external_secrets_enabled ? 1 : 0
+  count = local.aks.enabled && local.aks.external_secrets_enabled ? 1 : 0
 
-  name = "external-secrets"
-
+  name             = "external-secrets"
   repository       = "https://charts.external-secrets.io"
   chart            = "external-secrets"
   namespace        = "external-secrets"

@@ -52,24 +52,40 @@ resource "azurerm_subnet_network_security_group_association" "sql" {
   network_security_group_id = azurerm_network_security_group.sql[0].id
 }
 
-resource "azurerm_network_security_rule" "sql" {
+resource "azurerm_network_security_rule" "sql_private_inbound" {
   count = local.mssql.enabled && upper(local.mssql.type) == "MANAGED_INSTANCE" ? 1 : 0
 
-  name                        = "allow_management_inbound"
+  name                        = "allow_private_inbound"
   priority                    = 1000
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
   source_port_range           = "*"
-  destination_port_range      = local.mssql.sql_managed_instance.allow_inbound_port
+  destination_port_range      = "1433"
   source_address_prefix       = "VirtualNetwork"
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.aks.name
   network_security_group_name = azurerm_network_security_group.sql[0].name
 }
 
+resource "azurerm_network_security_rule" "sql_public_inbound" {
+  count = local.mssql.enabled && upper(local.mssql.type) == "MANAGED_INSTANCE" && local.mssql.public_network ? 1 : 0
+
+  name                        = "allow_public_inbound"
+  priority                    = 1010
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "3342"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.aks.name
+  network_security_group_name = azurerm_network_security_group.sql[0].name
+}
+
 resource "random_password" "sql_managed_instance" {
-  count = local.mssql.enabled && (try(local.mssql.password, "") != "") && upper(local.mssql.type) == "MANAGED_INSTANCE" ? 1 : 0
+  count = local.mssql.enabled && (local.mssql.password == null || local.mssql.password == "") && upper(local.mssql.type) == "MANAGED_INSTANCE" ? 1 : 0
 
   length  = 16
   special = true
@@ -82,17 +98,18 @@ resource "azurerm_mssql_managed_instance" "sql" {
   resource_group_name = azurerm_resource_group.aks.name
   location            = azurerm_resource_group.aks.location
 
-  license_type       = local.mssql.license_included ? "LicenseIncluded" : "BasePrice"
-  sku_name           = local.mssql.sql_managed_instance.sku
-  storage_size_in_gb = local.mssql.sql_managed_instance.storage_size_in_gb
-  subnet_id          = azurerm_subnet.sql[0].id
-  vcores             = local.mssql.sql_managed_instance.vcore
+  license_type                 = local.mssql.license_included ? "LicenseIncluded" : "BasePrice"
+  sku_name                     = local.mssql.sql_managed_instance.sku
+  storage_size_in_gb           = local.mssql.sql_managed_instance.storage_size_in_gb
+  subnet_id                    = azurerm_subnet.sql[0].id
+  vcores                       = local.mssql.sql_managed_instance.vcore
+  public_data_endpoint_enabled = local.mssql.public_network
 
   storage_account_type   = local.mssql.sql_managed_instance.storage_account_type
   zone_redundant_enabled = local.mssql.sql_managed_instance.zone_redundant_enabled
 
   administrator_login          = local.mssql.username
-  administrator_login_password = coalesce(local.mssql.password, random_password.sql_managed_instance[0].result)
+  administrator_login_password = coalesce(local.mssql.password, try(random_password.sql_managed_instance[0].result, ""))
 
   depends_on = [
     azurerm_subnet_network_security_group_association.sql,

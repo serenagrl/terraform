@@ -41,8 +41,8 @@ resource "azurerm_mssql_firewall_rule" "sql_client_access" {
 
   name             = "sql-client-access"
   server_id        = azurerm_mssql_server.sql[0].id
-  start_ip_address = coalesce(local.sql_database.allowed_client_ip, try(trimspace(data.curl.get_client_ip[0].response), ""))
-  end_ip_address   = coalesce(local.sql_database.allowed_client_ip, try(trimspace(data.curl.get_client_ip[0].response), ""))
+  start_ip_address = coalesce(local.mssql.sql_database.allowed_client_ip, try(trimspace(data.curl.get_client_ip[0].response), ""))
+  end_ip_address   = coalesce(local.mssql.sql_database.allowed_client_ip, try(trimspace(data.curl.get_client_ip[0].response), ""))
 }
 
 # Allow Azure services and resources to access through public network.

@@ -29,13 +29,20 @@ resource "azurerm_mssql_database" "sql" {
   storage_account_type = local.mssql.sql_database.storage_account_type
 }
 
+data "curl" "get_client_ip" {
+  count = local.mssql.enabled && upper(local.mssql.type) == "DATABASE" && local.mssql.public_network ? 1 : 0
+
+  http_method = "GET"
+  uri         = "https://ipv4.icanhazip.com"
+}
+
 resource "azurerm_mssql_firewall_rule" "sql_client_access" {
   count = local.mssql.enabled && upper(local.mssql.type) == "DATABASE" && local.mssql.public_network ? 1 : 0
 
   name             = "sql-client-access"
   server_id        = azurerm_mssql_server.sql[0].id
-  start_ip_address = coalesce(local.local_gateway_ip, try(trimspace(data.curl.get_public_ip[0].response), ""))
-  end_ip_address   = coalesce(local.local_gateway_ip, try(trimspace(data.curl.get_public_ip[0].response), ""))
+  start_ip_address = coalesce(local.sql_database.allowed_client_ip, try(trimspace(data.curl.get_client_ip[0].response), ""))
+  end_ip_address   = coalesce(local.sql_database.allowed_client_ip, try(trimspace(data.curl.get_client_ip[0].response), ""))
 }
 
 # Allow Azure services and resources to access through public network.

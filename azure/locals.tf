@@ -69,13 +69,14 @@ locals {
   mssql = {
     enabled  = false
 
-    subnet_cidr = "10.0.96.0/20" # TODO: range that not conflict with other cidr.
-    type        = "database" # Valid values are "database" or "managed_instance"
-    server_name = "${local.project}-mssql" # Must be unique name across azure
-    username    = "mssql"
-    password    = null # Set to null to auto-generate.
-    databases   = ["broadcastdb"]
+    subnet_cidr      = "10.0.96.0/20" # TODO: range that not conflict with other cidr.
+    type             = "managed_instance" # Valid values are "database" or "managed_instance"
+    server_name      = "${local.project}-mssql" # Must be unique name across azure
+    username         = "mssql"
+    password         = null # Set to null to auto-generate.
+    databases        = [] # Specify any default databases to be created.
     license_included = false
+    public_network   = false
 
     sql_database = {
       version      = "12.0" # Valid values are "2.0" or "12.0"
@@ -83,14 +84,14 @@ locals {
       enclave_type = ""
       max_size_gb  = 10
 
+      allowed_client_ip    = "" # Set the IP address to allow or blank to use local public IP.
       storage_account_type = "Local"
     }
 
     sql_managed_instance = {
-      sku                = "GP_Gen5"
-      storage_size_in_gb = "32"
-      vcore              = 4
-      allow_inbound_port = "1433"
+      sku                          = "GP_Gen5"
+      storage_size_in_gb           = "32"
+      vcore                        = 4
 
       storage_account_type   = "LRS"
       zone_redundant_enabled = false

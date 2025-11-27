@@ -1,5 +1,5 @@
 resource "random_password" "sql" {
-  count = local.mssql.enabled && (try(local.mssql.password, "") != "") && upper(local.mssql.type) == "DATABASE" ? 1 : 0
+  count = local.mssql.enabled && (local.mssql.password == null || local.mssql.password == "") && upper(local.mssql.type) == "DATABASE" ? 1 : 0
 
   length  = 16
   special = true
@@ -13,8 +13,8 @@ resource "azurerm_mssql_server" "sql" {
   location                      = azurerm_resource_group.aks.location
   version                       = local.mssql.sql_database.version
   administrator_login           = local.mssql.username
-  administrator_login_password  = coalesce(local.mssql.password, random_password.sql[0].result)
-  public_network_access_enabled = false
+  administrator_login_password  = coalesce(local.mssql.password, try(random_password.sql[0].result, ""))
+  public_network_access_enabled = local.mssql.public_network
 }
 
 resource "azurerm_mssql_database" "sql" {
@@ -29,15 +29,41 @@ resource "azurerm_mssql_database" "sql" {
   storage_account_type = local.mssql.sql_database.storage_account_type
 }
 
+data "curl" "get_client_ip" {
+  count = local.mssql.enabled && upper(local.mssql.type) == "DATABASE" && local.mssql.public_network ? 1 : 0
+
+  http_method = "GET"
+  uri         = "https://ipv4.icanhazip.com"
+}
+
+resource "azurerm_mssql_firewall_rule" "sql_client_access" {
+  count = local.mssql.enabled && upper(local.mssql.type) == "DATABASE" && local.mssql.public_network ? 1 : 0
+
+  name             = "sql-client-access"
+  server_id        = azurerm_mssql_server.sql[0].id
+  start_ip_address = coalesce(local.sql_database.allowed_client_ip, try(trimspace(data.curl.get_client_ip[0].response), ""))
+  end_ip_address   = coalesce(local.sql_database.allowed_client_ip, try(trimspace(data.curl.get_client_ip[0].response), ""))
+}
+
+# Allow Azure services and resources to access through public network.
+resource "azurerm_mssql_firewall_rule" "sql_azure_access" {
+  count = local.mssql.enabled && upper(local.mssql.type) == "DATABASE" && local.mssql.public_network ? 1 : 0
+
+  name             = "sql-azure-access"
+  server_id        = azurerm_mssql_server.sql[0].id
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
+}
+
 resource "azurerm_private_dns_zone" "sql" {
-  count = local.mssql.enabled && upper(local.mssql.type) == "DATABASE" ? 1 : 0
+  count = local.mssql.enabled && upper(local.mssql.type) == "DATABASE" && !local.mssql.public_network ? 1 : 0
 
   name                = "privatelink.database.windows.net"
   resource_group_name = azurerm_resource_group.aks.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "sql" {
-  count = local.mssql.enabled && upper(local.mssql.type) == "DATABASE" ? 1 : 0
+  count = local.mssql.enabled && upper(local.mssql.type) == "DATABASE" && !local.mssql.public_network ? 1 : 0
 
   name                  = "${local.project}-sql-network-link"
   private_dns_zone_name = azurerm_private_dns_zone.sql[0].name
@@ -48,7 +74,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "sql" {
 }
 
 resource "azurerm_private_endpoint" "sql" {
-  count = local.mssql.enabled && upper(local.mssql.type) == "DATABASE" ? 1 : 0
+  count = local.mssql.enabled && upper(local.mssql.type) == "DATABASE" && !local.mssql.public_network ? 1 : 0
 
   name                          = "${local.project}-sql-private-endpoint"
   location                      = azurerm_resource_group.aks.location

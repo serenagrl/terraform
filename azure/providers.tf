@@ -32,19 +32,21 @@ terraform {
   }
 }
 
-provider "kubernetes" {
-  host                   = azurerm_kubernetes_cluster.aks[0].kube_config.0.host
-  client_certificate     = base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.client_certificate)
-  client_key             = base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.client_key)
-  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.cluster_ca_certificate)
-  config_path = "~/.kube/config"
+resource "local_file" "kubeconfig" {
+  count = local.aks.enabled ? 1 : 0
+  
+  filename     = pathexpand("~/.kube/${local.project}-cluster")
+  content      = azurerm_kubernetes_cluster.aks[0].kube_config_raw
+
+  depends_on   = [azurerm_kubernetes_cluster.aks]
 }
+
+provider "kubernetes" {
+  config_path = "~/.kube/${local.project}-cluster"
+}
+
 provider "helm" {
   kubernetes = {
-    host                   = azurerm_kubernetes_cluster.aks[0].kube_config.0.host
-    client_certificate     = base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.client_certificate)
-    client_key             = base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.client_key)
-    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.cluster_ca_certificate)
-    config_path = "~/.kube/config"
+    config_path = "~/.kube/${local.project}-cluster"
   }
 }

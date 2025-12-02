@@ -50,25 +50,3 @@ resource "azurerm_private_endpoint" "file_csi" {
     private_dns_zone_ids = [azurerm_private_dns_zone.file_csi[0].id]
   }
 }
-
-resource "kubernetes_storage_class" "azurefile_csi_private" {
-  count = local.aks.enabled ? 1 : 0
-
-  metadata {
-    name = "azurefile-csi-private"
-  }
-  storage_provisioner = "file.csi.azure.com"
-  reclaim_policy      = "Delete"
-  volume_binding_mode = "Immediate"
-  parameters = {
-    storageAccount      = azurerm_storage_account.file_csi[0].name
-    skuName             = "Standard_LRS"
-    protocol            = "smb"
-    networkEndpointType = "privateEndpoint"
-  }
-  mount_options = ["mfsymlinks", "actimeo=30", "nosharesock"]
-
-  depends_on = [
-    azurerm_storage_account.file_csi
-  ]
-}

@@ -37,7 +37,13 @@ locals {
     min_count            = 2
     max_count            = 4
 
-    csi_storage_account_name     = "${local.project}csistorage" # Must be unique name across azure, no dash or spaces.
+    # Storage Account will be used by Azure File CSI
+    storage = {
+      account_name        = "${local.project}storage" # Must be unique name across azure, no dash or spaces.
+      create_blob_storage = true
+      blob_container_name = "appStorage"
+    }
+
     image_cleaner_enabled        = false
     image_cleaner_interval_hours = 24
     azure_policy_enabled         = false

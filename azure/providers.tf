@@ -32,19 +32,12 @@ terraform {
   }
 }
 
-provider "kubernetes" {
-  host                   = azurerm_kubernetes_cluster.aks[0].kube_config.0.host
-  client_certificate     = base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.client_certificate)
-  client_key             = base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.client_key)
-  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.cluster_ca_certificate)
-  config_path = "~/.kube/config"
-}
 provider "helm" {
   kubernetes = {
-    host                   = azurerm_kubernetes_cluster.aks[0].kube_config.0.host
-    client_certificate     = base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.client_certificate)
-    client_key             = base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.client_key)
-    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.cluster_ca_certificate)
+    host                   = local.aks.enabled ? azurerm_kubernetes_cluster.aks[0].kube_config.0.host : ""
+    client_certificate     = local.aks.enabled ? base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.client_certificate) : ""
+    client_key             = local.aks.enabled ? base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.client_key) : ""
+    cluster_ca_certificate = local.aks.enabled ? base64decode(azurerm_kubernetes_cluster.aks[0].kube_config.0.cluster_ca_certificate) : ""
     config_path = "~/.kube/config"
   }
 }

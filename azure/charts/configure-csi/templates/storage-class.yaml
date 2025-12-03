@@ -1,0 +1,17 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azurefile-csi-private
+mountOptions:
+- mfsymlinks
+- nosharesock
+- actimeo=30
+parameters:
+  networkEndpointType: privateEndpoint
+  protocol: smb
+  skuName: Standard_LRS
+  storageAccount: {{ .Values.storageAccountName }}
+provisioner: file.csi.azure.com
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
